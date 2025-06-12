@@ -1,0 +1,14 @@
+name: material_expressive
+description: Unofficial support of Material 3 Expressive for Flutter.
+version: 0.1.0
+repository: https://github.com/Flutter-France/material_expressive
+
+environment:
+  sdk: ^3.7.2
+
+dependencies:
+  # path: ^1.8.0
+
+dev_dependencies:
+  lints: ^5.0.0
+  test: ^1.24.0
