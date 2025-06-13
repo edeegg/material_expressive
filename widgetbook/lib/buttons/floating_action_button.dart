@@ -22,12 +22,3 @@ Widget buildLargeFloatingActionButton(BuildContext context) {
     child: Icon(Icons.stars),
   );
 }
-
-@widgetbook.UseCase(name: 'Extended', type: M3EFloatingActionButton)
-Widget buildExtendedFloatingActionButton(BuildContext context) {
-  return M3EFloatingActionButton.extended(
-    onPressed: () {},
-    icon: Icon(Icons.stars),
-    label: Text('Extended'),
-  );
-}

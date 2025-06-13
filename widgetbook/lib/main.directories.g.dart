@@ -25,10 +25,6 @@ final directories = <_i1.WidgetbookNode>[
             name: 'M3EFloatingActionButton',
             useCases: [
               _i1.WidgetbookUseCase(
-                name: 'Extended',
-                builder: _i2.buildExtendedFloatingActionButton,
-              ),
-              _i1.WidgetbookUseCase(
                 name: 'Large',
                 builder: _i2.buildLargeFloatingActionButton,
               ),

@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -12,7 +10,7 @@ class _DefaultHeroTag {
   String toString() => '<default M3EFloatingActionButton tag>';
 }
 
-enum _M3EFloatingActionButtonType { regular, medium, large, extended }
+enum _M3EFloatingActionButtonType { regular, medium, large }
 
 class M3EFloatingActionButton extends StatelessWidget {
   const M3EFloatingActionButton({
@@ -45,7 +43,6 @@ class M3EFloatingActionButton extends StatelessWidget {
        assert(highlightElevation == null || highlightElevation >= 0.0),
        assert(disabledElevation == null || disabledElevation >= 0.0),
        _floatingActionButtonType = _M3EFloatingActionButtonType.regular,
-       _extendedLabel = null,
        extendedIconLabelSpacing = null,
        extendedPadding = null,
        extendedTextStyle = null;
@@ -80,7 +77,6 @@ class M3EFloatingActionButton extends StatelessWidget {
        assert(disabledElevation == null || disabledElevation >= 0.0),
        _floatingActionButtonType = _M3EFloatingActionButtonType.medium,
        isExtended = false,
-       _extendedLabel = null,
        extendedIconLabelSpacing = null,
        extendedPadding = null,
        extendedTextStyle = null;
@@ -115,47 +111,9 @@ class M3EFloatingActionButton extends StatelessWidget {
        assert(disabledElevation == null || disabledElevation >= 0.0),
        _floatingActionButtonType = _M3EFloatingActionButtonType.large,
        isExtended = false,
-       _extendedLabel = null,
        extendedIconLabelSpacing = null,
        extendedPadding = null,
        extendedTextStyle = null;
-
-  const M3EFloatingActionButton.extended({
-    super.key,
-    this.tooltip,
-    this.foregroundColor,
-    this.backgroundColor,
-    this.focusColor,
-    this.hoverColor,
-    this.heroTag = const _DefaultHeroTag(),
-    this.elevation,
-    this.focusElevation,
-    this.hoverElevation,
-    this.splashColor,
-    this.highlightElevation,
-    this.disabledElevation,
-    required this.onPressed,
-    this.mouseCursor = SystemMouseCursors.click,
-    this.shape,
-    this.isExtended = true,
-    this.materialTapTargetSize,
-    this.clipBehavior = Clip.none,
-    this.focusNode,
-    this.autofocus = false,
-    this.extendedIconLabelSpacing,
-    this.extendedPadding,
-    this.extendedTextStyle,
-    Widget? icon,
-    required Widget label,
-    this.enableFeedback,
-  }) : assert(elevation == null || elevation >= 0.0),
-       assert(focusElevation == null || focusElevation >= 0.0),
-       assert(hoverElevation == null || hoverElevation >= 0.0),
-       assert(highlightElevation == null || highlightElevation >= 0.0),
-       assert(disabledElevation == null || disabledElevation >= 0.0),
-       _floatingActionButtonType = _M3EFloatingActionButtonType.extended,
-       child = icon,
-       _extendedLabel = label;
 
   /// The widget below this widget in the tree.
   ///
@@ -376,8 +334,6 @@ class M3EFloatingActionButton extends StatelessWidget {
 
   final _M3EFloatingActionButtonType _floatingActionButtonType;
 
-  final Widget? _extendedLabel;
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -465,32 +421,6 @@ class M3EFloatingActionButton extends StatelessWidget {
         sizeConstraints =
             floatingActionButtonTheme.largeSizeConstraints ??
             defaults.largeSizeConstraints!;
-      case _M3EFloatingActionButtonType.extended:
-        sizeConstraints =
-            floatingActionButtonTheme.extendedSizeConstraints ??
-            defaults.extendedSizeConstraints!;
-        final double iconLabelSpacing =
-            extendedIconLabelSpacing ??
-            floatingActionButtonTheme.extendedIconLabelSpacing ??
-            8.0;
-        final EdgeInsetsGeometry padding =
-            extendedPadding ??
-            floatingActionButtonTheme.extendedPadding ??
-            defaults.extendedPadding!;
-        resolvedChild = _ChildOverflowBox(
-          child: Padding(
-            padding: padding,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                if (child != null) child!,
-                if (child != null && isExtended)
-                  SizedBox(width: iconLabelSpacing),
-                if (isExtended) _extendedLabel!,
-              ],
-            ),
-          ),
-        );
     }
 
     Widget result = RawMaterialButton(
@@ -615,79 +545,6 @@ class _EffectiveMouseCursor extends WidgetStateMouseCursor {
       'MaterialStateMouseCursor(M3EFloatingActionButton)';
 }
 
-// This widget's size matches its child's size unless its constraints
-// force it to be larger or smaller. The child is centered.
-//
-// Used to encapsulate extended FABs whose size is fixed, using Row
-// and MainAxisSize.min, to be as wide as their label and icon.
-class _ChildOverflowBox extends SingleChildRenderObjectWidget {
-  const _ChildOverflowBox({super.child});
-
-  @override
-  _RenderChildOverflowBox createRenderObject(BuildContext context) {
-    return _RenderChildOverflowBox(textDirection: Directionality.of(context));
-  }
-
-  @override
-  void updateRenderObject(
-    BuildContext context,
-    _RenderChildOverflowBox renderObject,
-  ) {
-    renderObject.textDirection = Directionality.of(context);
-  }
-}
-
-class _RenderChildOverflowBox extends RenderAligningShiftedBox {
-  _RenderChildOverflowBox({super.textDirection})
-    : super(alignment: Alignment.center);
-
-  @override
-  double computeMinIntrinsicWidth(double height) => 0.0;
-
-  @override
-  double computeMinIntrinsicHeight(double width) => 0.0;
-
-  @override
-  Size computeDryLayout(BoxConstraints constraints) {
-    if (child != null) {
-      final Size childSize = child!.getDryLayout(const BoxConstraints());
-      return Size(
-        math.max(
-          constraints.minWidth,
-          math.min(constraints.maxWidth, childSize.width),
-        ),
-        math.max(
-          constraints.minHeight,
-          math.min(constraints.maxHeight, childSize.height),
-        ),
-      );
-    } else {
-      return constraints.biggest;
-    }
-  }
-
-  @override
-  void performLayout() {
-    final BoxConstraints constraints = this.constraints;
-    if (child != null) {
-      child!.layout(const BoxConstraints(), parentUsesSize: true);
-      size = Size(
-        math.max(
-          constraints.minWidth,
-          math.min(constraints.maxWidth, child!.size.width),
-        ),
-        math.max(
-          constraints.minHeight,
-          math.min(constraints.maxHeight, child!.size.height),
-        ),
-      );
-      alignChild();
-    } else {
-      size = constraints.biggest;
-    }
-  }
-}
-
 class _FABDefaultsM3E extends FloatingActionButtonThemeData {
   _FABDefaultsM3E(this.context, this.type, this.hasChild)
     : mediumSizeConstraints = const BoxConstraints.tightFor(
@@ -719,8 +576,6 @@ class _FABDefaultsM3E extends FloatingActionButtonThemeData {
   late final _colors = Theme.of(context).colorScheme;
   late final _textTheme = Theme.of(context).textTheme;
 
-  bool get _isExtended => type == _M3EFloatingActionButtonType.extended;
-
   @override
   Color? get foregroundColor => _colors.onPrimaryContainer;
 
@@ -747,9 +602,6 @@ class _FABDefaultsM3E extends FloatingActionButtonThemeData {
     _M3EFloatingActionButtonType.large => const RoundedRectangleBorder(
       borderRadius: BorderRadius.all(Radius.circular(28.0)),
     ),
-    _M3EFloatingActionButtonType.extended => const RoundedRectangleBorder(
-      borderRadius: BorderRadius.all(Radius.circular(16.0)),
-    ),
   };
 
   @override
@@ -757,14 +609,12 @@ class _FABDefaultsM3E extends FloatingActionButtonThemeData {
     _M3EFloatingActionButtonType.regular => 24.0,
     _M3EFloatingActionButtonType.medium => 28.0,
     _M3EFloatingActionButtonType.large => 36.0,
-    _M3EFloatingActionButtonType.extended => 24.0,
   };
 
   @override
-  EdgeInsetsGeometry? get extendedPadding => EdgeInsetsDirectional.only(
-    start: hasChild && _isExtended ? 16.0 : 20.0,
-    end: 20.0,
-  );
+  EdgeInsetsGeometry? get extendedPadding =>
+      EdgeInsetsDirectional.only(start: 20.0, end: 20.0);
+
   @override
   TextStyle? get extendedTextStyle => _textTheme.labelLarge;
 }
