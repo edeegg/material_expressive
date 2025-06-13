@@ -1,6 +1,6 @@
 name: material_expressive_widgetbook
 description: "material_expressive widgetbook"
-publish_to: 'none'
+publish_to: "none"
 version: 0.1.0
 
 environment:
@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  material_expressive:
+    path: ../
   widgetbook: ^3.14.3
   widgetbook_annotation: ^3.5.0
 
