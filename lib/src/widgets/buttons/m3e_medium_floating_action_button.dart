@@ -63,7 +63,7 @@ class M3EMediumFloatingActionButton extends StatelessWidget {
 
   /// The color to use for filling the button when the button has input focus.
   ///
-  /// In Material3, defaults to [ColorScheme.onPrimaryContainer] with opacity 0.1.
+  /// In Material 3, defaults to [ColorScheme.onPrimaryContainer] with opacity 0.1.
   /// In Material 2, it defaults to [ThemeData.focusColor] for the current theme.
   final Color? focusColor;
 
