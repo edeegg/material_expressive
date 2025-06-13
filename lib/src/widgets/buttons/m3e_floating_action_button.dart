@@ -1,5 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:material_expressive/src/theme/m3e_floating_action_button_theme_data.dart';
+import 'package:material_expressive/src/theme/m3e_theme.dart';
+
+class _DefaultHeroTag {
+  const _DefaultHeroTag();
+
+  @override
+  String toString() => '<default M3EFloatingActionButton tag>';
+}
+
+enum _M3EFloatingActionButtonType { regular, medium, large, extended }
 
 class M3EFloatingActionButton extends StatelessWidget {
   const M3EFloatingActionButton({
@@ -7,6 +17,10 @@ class M3EFloatingActionButton extends StatelessWidget {
     this.tooltip,
     this.foregroundColor,
     this.backgroundColor,
+    this.focusColor,
+    this.hoverColor,
+    this.splashColor,
+    this.heroTag = const _DefaultHeroTag(),
     required this.onPressed,
     super.key,
   }) : _floatingActionButtonType = _M3EFloatingActionButtonType.regular;
@@ -16,6 +30,10 @@ class M3EFloatingActionButton extends StatelessWidget {
     this.tooltip,
     this.foregroundColor,
     this.backgroundColor,
+    this.focusColor,
+    this.hoverColor,
+    this.splashColor,
+    this.heroTag = const _DefaultHeroTag(),
     required this.onPressed,
     super.key,
   }) : _floatingActionButtonType = _M3EFloatingActionButtonType.medium;
@@ -25,6 +43,10 @@ class M3EFloatingActionButton extends StatelessWidget {
     this.tooltip,
     this.foregroundColor,
     this.backgroundColor,
+    this.focusColor,
+    this.hoverColor,
+    this.splashColor,
+    this.heroTag = const _DefaultHeroTag(),
     required this.onPressed,
     super.key,
   }) : _floatingActionButtonType = _M3EFloatingActionButtonType.large;
@@ -58,6 +80,40 @@ class M3EFloatingActionButton extends StatelessWidget {
   /// [ColorScheme.secondary] color of [ThemeData.colorScheme] is used.
   final Color? backgroundColor;
 
+  /// The color to use for filling the button when the button has input focus.
+  ///
+  /// In Material3, defaults to [ColorScheme.onPrimaryContainer] with opacity 0.1.
+  /// In Material 2, it defaults to [ThemeData.focusColor] for the current theme.
+  final Color? focusColor;
+
+  /// The color to use for filling the button when the button has a pointer
+  /// hovering over it.
+  ///
+  /// Defaults to [ThemeData.hoverColor] for the current theme in Material 2. In
+  /// Material 3, defaults to [ColorScheme.onPrimaryContainer] with opacity 0.08.
+  final Color? hoverColor;
+
+  /// The splash color for this [FloatingActionButton]'s [InkWell].
+  ///
+  /// If null, [FloatingActionButtonThemeData.splashColor] is used, if that is
+  /// null, [ThemeData.splashColor] is used in Material 2; [ColorScheme.onPrimaryContainer]
+  /// with opacity 0.1 is used in Material 3.
+  final Color? splashColor;
+
+  /// The tag to apply to the button's [Hero] widget.
+  ///
+  /// Defaults to a tag that matches other floating action buttons.
+  ///
+  /// Set this to null explicitly if you don't want the floating action button to
+  /// have a hero tag.
+  ///
+  /// If this is not explicitly set, then there can only be one
+  /// [FloatingActionButton] per route (that is, per screen), since otherwise
+  /// there would be a tag conflict (multiple heroes on one route can't have the
+  /// same tag). The Material Design specification recommends only using one
+  /// floating action button per screen.
+  final Object? heroTag;
+
   /// The callback that is called when the button is tapped or otherwise activated.
   ///
   /// If this is set to null, the button will be disabled.
@@ -69,6 +125,7 @@ class M3EFloatingActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final floatingActionButtonTheme = theme.floatingActionButtonTheme;
+    final m3eFabTheme = theme.extension<M3ETheme>()?.floatingActionButtonTheme;
     final defaults = _FABDefaultsM3E(
       context,
       _floatingActionButtonType,
@@ -83,6 +140,38 @@ class M3EFloatingActionButton extends StatelessWidget {
         this.backgroundColor ??
         floatingActionButtonTheme.backgroundColor ??
         defaults.backgroundColor;
+    final focusColor =
+        this.focusColor ??
+        floatingActionButtonTheme.focusColor ??
+        defaults.focusColor;
+    final hoverColor =
+        this.hoverColor ??
+        floatingActionButtonTheme.hoverColor ??
+        defaults.hoverColor;
+    final splashColor =
+        this.splashColor ??
+        floatingActionButtonTheme.splashColor ??
+        defaults.splashColor;
+
+    final BoxConstraints sizeConstraints;
+    switch (_floatingActionButtonType) {
+      case _M3EFloatingActionButtonType.regular:
+        sizeConstraints =
+            floatingActionButtonTheme.sizeConstraints ??
+            defaults.sizeConstraints!;
+      case _M3EFloatingActionButtonType.medium:
+        sizeConstraints =
+            m3eFabTheme?.mediumSizeConstraints ??
+            defaults.mediumSizeConstraints;
+      case _M3EFloatingActionButtonType.large:
+        sizeConstraints =
+            floatingActionButtonTheme.largeSizeConstraints ??
+            defaults.largeSizeConstraints!;
+      case _M3EFloatingActionButtonType.extended:
+        sizeConstraints =
+            floatingActionButtonTheme.extendedSizeConstraints ??
+            defaults.extendedSizeConstraints!;
+    }
 
     Widget result = RawMaterialButton(
       onPressed: onPressed,
@@ -110,23 +199,20 @@ class M3EFloatingActionButton extends StatelessWidget {
       child: resolvedChild,
     );
 
-    if (tooltip != null) {
-      result = Tooltip(message: tooltip, child: result);
-    }
-
-    if (heroTag != null) {
-      result = Hero(tag: heroTag!, child: result);
-    }
+    if (tooltip != null) result = Tooltip(message: tooltip, child: result);
+    if (heroTag case final heroTag?) result = Hero(tag: heroTag, child: result);
 
     return MergeSemantics(child: result);
   }
 }
 
-enum _M3EFloatingActionButtonType { regular, medium, large, extended }
-
 class _FABDefaultsM3E extends FloatingActionButtonThemeData {
   _FABDefaultsM3E(this.context, this.type, this.hasChild)
-    : super(
+    : mediumSizeConstraints = const BoxConstraints.tightFor(
+        width: 80.0,
+        height: 80.0,
+      ),
+      super(
         elevation: 6.0,
         focusElevation: 6.0,
         hoverElevation: 8.0,
@@ -144,14 +230,10 @@ class _FABDefaultsM3E extends FloatingActionButtonThemeData {
         extendedIconLabelSpacing: 8.0,
       );
 
-  final mediumSizeConstraints = const BoxConstraints.tightFor(
-    width: 80.0,
-    height: 80.0,
-  );
-
   final BuildContext context;
   final _M3EFloatingActionButtonType type;
   final bool hasChild;
+  final BoxConstraints mediumSizeConstraints;
   late final _colors = Theme.of(context).colorScheme;
   late final _textTheme = Theme.of(context).textTheme;
 

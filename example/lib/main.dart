@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Material 3 Expressive Demo',
       theme: ThemeData(
-        extensions: [M3ETheme.light(colorScheme: colorScheme)],
+        extensions: [M3ETheme()],
         colorScheme: colorScheme,
         useMaterial3: true,
       ),
