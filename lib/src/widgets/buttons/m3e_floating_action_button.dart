@@ -1,5 +1,8 @@
+import 'dart:math' as math;
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:material_expressive/src/theme/m3e_floating_action_button_theme_data.dart';
+import 'package:flutter/rendering.dart';
 import 'package:material_expressive/src/theme/m3e_theme.dart';
 
 class _DefaultHeroTag {
@@ -21,9 +24,31 @@ class M3EFloatingActionButton extends StatelessWidget {
     this.hoverColor,
     this.splashColor,
     this.heroTag = const _DefaultHeroTag(),
+    this.elevation,
+    this.focusElevation,
+    this.hoverElevation,
+    this.highlightElevation,
+    this.disabledElevation,
     required this.onPressed,
+    this.mouseCursor,
+    this.shape,
+    this.clipBehavior = Clip.none,
+    this.focusNode,
+    this.autofocus = false,
+    this.materialTapTargetSize,
+    this.isExtended = false,
+    this.enableFeedback,
     super.key,
-  }) : _floatingActionButtonType = _M3EFloatingActionButtonType.regular;
+  }) : assert(elevation == null || elevation >= 0.0),
+       assert(focusElevation == null || focusElevation >= 0.0),
+       assert(hoverElevation == null || hoverElevation >= 0.0),
+       assert(highlightElevation == null || highlightElevation >= 0.0),
+       assert(disabledElevation == null || disabledElevation >= 0.0),
+       _floatingActionButtonType = _M3EFloatingActionButtonType.regular,
+       _extendedLabel = null,
+       extendedIconLabelSpacing = null,
+       extendedPadding = null,
+       extendedTextStyle = null;
 
   const M3EFloatingActionButton.medium({
     this.child,
@@ -34,9 +59,31 @@ class M3EFloatingActionButton extends StatelessWidget {
     this.hoverColor,
     this.splashColor,
     this.heroTag = const _DefaultHeroTag(),
+    this.elevation,
+    this.focusElevation,
+    this.hoverElevation,
+    this.highlightElevation,
+    this.disabledElevation,
     required this.onPressed,
+    this.mouseCursor,
+    this.shape,
+    this.clipBehavior = Clip.none,
+    this.focusNode,
+    this.autofocus = false,
+    this.materialTapTargetSize,
+    this.enableFeedback,
     super.key,
-  }) : _floatingActionButtonType = _M3EFloatingActionButtonType.medium;
+  }) : assert(elevation == null || elevation >= 0.0),
+       assert(focusElevation == null || focusElevation >= 0.0),
+       assert(hoverElevation == null || hoverElevation >= 0.0),
+       assert(highlightElevation == null || highlightElevation >= 0.0),
+       assert(disabledElevation == null || disabledElevation >= 0.0),
+       _floatingActionButtonType = _M3EFloatingActionButtonType.medium,
+       isExtended = false,
+       _extendedLabel = null,
+       extendedIconLabelSpacing = null,
+       extendedPadding = null,
+       extendedTextStyle = null;
 
   const M3EFloatingActionButton.large({
     this.child,
@@ -47,9 +94,31 @@ class M3EFloatingActionButton extends StatelessWidget {
     this.hoverColor,
     this.splashColor,
     this.heroTag = const _DefaultHeroTag(),
+    this.elevation,
+    this.focusElevation,
+    this.hoverElevation,
+    this.highlightElevation,
+    this.disabledElevation,
     required this.onPressed,
+    this.mouseCursor,
+    this.shape,
+    this.clipBehavior = Clip.none,
+    this.focusNode,
+    this.autofocus = false,
+    this.materialTapTargetSize,
+    this.enableFeedback,
     super.key,
-  }) : _floatingActionButtonType = _M3EFloatingActionButtonType.large;
+  }) : assert(elevation == null || elevation >= 0.0),
+       assert(focusElevation == null || focusElevation >= 0.0),
+       assert(hoverElevation == null || hoverElevation >= 0.0),
+       assert(highlightElevation == null || highlightElevation >= 0.0),
+       assert(disabledElevation == null || disabledElevation >= 0.0),
+       _floatingActionButtonType = _M3EFloatingActionButtonType.large,
+       isExtended = false,
+       _extendedLabel = null,
+       extendedIconLabelSpacing = null,
+       extendedPadding = null,
+       extendedTextStyle = null;
 
   /// The widget below this widget in the tree.
   ///
@@ -93,7 +162,7 @@ class M3EFloatingActionButton extends StatelessWidget {
   /// Material 3, defaults to [ColorScheme.onPrimaryContainer] with opacity 0.08.
   final Color? hoverColor;
 
-  /// The splash color for this [FloatingActionButton]'s [InkWell].
+  /// The splash color for this [M3EFloatingActionButton]'s [InkWell].
   ///
   /// If null, [FloatingActionButtonThemeData.splashColor] is used, if that is
   /// null, [ThemeData.splashColor] is used in Material 2; [ColorScheme.onPrimaryContainer]
@@ -108,7 +177,7 @@ class M3EFloatingActionButton extends StatelessWidget {
   /// have a hero tag.
   ///
   /// If this is not explicitly set, then there can only be one
-  /// [FloatingActionButton] per route (that is, per screen), since otherwise
+  /// [M3EFloatingActionButton] per route (that is, per screen), since otherwise
   /// there would be a tag conflict (multiple heroes on one route can't have the
   /// same tag). The Material Design specification recommends only using one
   /// floating action button per screen.
@@ -119,7 +188,158 @@ class M3EFloatingActionButton extends StatelessWidget {
   /// If this is set to null, the button will be disabled.
   final VoidCallback? onPressed;
 
+  /// {@macro flutter.material.RawMaterialButton.mouseCursor}
+  ///
+  /// If this property is null, [WidgetStateMouseCursor.clickable] will be used.
+  final MouseCursor? mouseCursor;
+
+  /// The z-coordinate at which to place this button relative to its parent.
+  ///
+  /// This controls the size of the shadow below the floating action button.
+  ///
+  /// Defaults to 6, the appropriate elevation for floating action buttons. The
+  /// value is always non-negative.
+  ///
+  /// See also:
+  ///
+  ///  * [highlightElevation], the elevation when the button is pressed.
+  ///  * [disabledElevation], the elevation when the button is disabled.
+  final double? elevation;
+
+  /// The z-coordinate at which to place this button relative to its parent when
+  /// the button has the input focus.
+  ///
+  /// This controls the size of the shadow below the floating action button.
+  ///
+  /// Defaults to 8, the appropriate elevation for floating action buttons
+  /// while they have focus. The value is always non-negative.
+  ///
+  /// See also:
+  ///
+  ///  * [elevation], the default elevation.
+  ///  * [highlightElevation], the elevation when the button is pressed.
+  ///  * [disabledElevation], the elevation when the button is disabled.
+  final double? focusElevation;
+
+  /// The z-coordinate at which to place this button relative to its parent when
+  /// the button is enabled and has a pointer hovering over it.
+  ///
+  /// This controls the size of the shadow below the floating action button.
+  ///
+  /// Defaults to 8, the appropriate elevation for floating action buttons while
+  /// they have a pointer hovering over them. The value is always non-negative.
+  ///
+  /// See also:
+  ///
+  ///  * [elevation], the default elevation.
+  ///  * [highlightElevation], the elevation when the button is pressed.
+  ///  * [disabledElevation], the elevation when the button is disabled.
+  final double? hoverElevation;
+
+  /// The z-coordinate at which to place this button relative to its parent when
+  /// the user is touching the button.
+  ///
+  /// This controls the size of the shadow below the floating action button.
+  ///
+  /// Defaults to 12, the appropriate elevation for floating action buttons
+  /// while they are being touched. The value is always non-negative.
+  ///
+  /// See also:
+  ///
+  ///  * [elevation], the default elevation.
+  final double? highlightElevation;
+
+  /// The z-coordinate at which to place this button when the button is disabled
+  /// ([onPressed] is null).
+  ///
+  /// This controls the size of the shadow below the floating action button.
+  ///
+  /// Defaults to the same value as [elevation]. Setting this to zero makes the
+  /// floating action button work similar to an [ElevatedButton] but the titular
+  /// "floating" effect is lost. The value is always non-negative.
+  ///
+  /// See also:
+  ///
+  ///  * [elevation], the default elevation.
+  ///  * [highlightElevation], the elevation when the button is pressed.
+  final double? disabledElevation;
+
+  /// The shape of the button's [Material].
+  ///
+  /// The button's highlight and splash are clipped to this shape. If the
+  /// button has an elevation, then its drop shadow is defined by this
+  /// shape as well.
+  final ShapeBorder? shape;
+
+  /// {@macro flutter.material.Material.clipBehavior}
+  ///
+  /// Defaults to [Clip.none].
+  final Clip clipBehavior;
+
+  /// True if this is an "extended" floating action button.
+  ///
+  /// Typically "extended" buttons have a [StadiumBorder] [shape]
+  /// and have been created with the [FloatingActionButton.extended]
+  /// constructor.
+  ///
+  /// The [Scaffold] animates the appearance of ordinary floating
+  /// action buttons with scale and rotation transitions. Extended
+  /// floating action buttons are scaled and faded in.
+  final bool isExtended;
+
+  /// {@macro flutter.widgets.Focus.focusNode}
+  final FocusNode? focusNode;
+
+  /// {@macro flutter.widgets.Focus.autofocus}
+  final bool autofocus;
+
+  /// Configures the minimum size of the tap target.
+  ///
+  /// Defaults to [ThemeData.materialTapTargetSize].
+  ///
+  /// See also:
+  ///
+  ///  * [MaterialTapTargetSize], for a description of how this affects tap targets.
+  final MaterialTapTargetSize? materialTapTargetSize;
+
+  /// Whether detected gestures should provide acoustic and/or haptic feedback.
+  ///
+  /// For example, on Android a tap will produce a clicking sound and a
+  /// long-press will produce a short vibration, when feedback is enabled.
+  ///
+  /// If null, [FloatingActionButtonThemeData.enableFeedback] is used.
+  /// If both are null, then default value is true.
+  ///
+  /// See also:
+  ///
+  ///  * [Feedback] for providing platform-specific feedback to certain actions.
+  final bool? enableFeedback;
+
+  /// The spacing between the icon and the label for an extended
+  /// [FloatingActionButton].
+  ///
+  /// If null, [FloatingActionButtonThemeData.extendedIconLabelSpacing] is used.
+  /// If that is also null, the default is 8.0.
+  final double? extendedIconLabelSpacing;
+
+  /// The padding for an extended [FloatingActionButton]'s content.
+  ///
+  /// If null, [FloatingActionButtonThemeData.extendedPadding] is used. If that
+  /// is also null, the default is
+  /// `EdgeInsetsDirectional.only(start: 16.0, end: 20.0)` if an icon is
+  /// provided, and `EdgeInsetsDirectional.only(start: 20.0, end: 20.0)` if not.
+  final EdgeInsetsGeometry? extendedPadding;
+
+  /// The text style for an extended [FloatingActionButton]'s label.
+  ///
+  /// If null, [FloatingActionButtonThemeData.extendedTextStyle] is used. If
+  /// that is also null, then [TextTheme.labelLarge] with a letter spacing of 1.2
+  /// is used.
+  final TextStyle? extendedTextStyle;
+
   final _M3EFloatingActionButtonType _floatingActionButtonType;
+
+  final Widget? _extendedLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -152,7 +372,48 @@ class M3EFloatingActionButton extends StatelessWidget {
         this.splashColor ??
         floatingActionButtonTheme.splashColor ??
         defaults.splashColor;
+    final elevation =
+        this.elevation ??
+        floatingActionButtonTheme.elevation ??
+        defaults.elevation!;
+    final focusElevation =
+        this.focusElevation ??
+        floatingActionButtonTheme.focusElevation ??
+        defaults.focusElevation!;
+    final hoverElevation =
+        this.hoverElevation ??
+        floatingActionButtonTheme.hoverElevation ??
+        defaults.hoverElevation!;
+    final disabledElevation =
+        this.disabledElevation ??
+        floatingActionButtonTheme.disabledElevation ??
+        defaults.disabledElevation ??
+        elevation;
+    final highlightElevation =
+        this.highlightElevation ??
+        floatingActionButtonTheme.highlightElevation ??
+        defaults.highlightElevation!;
+    final materialTapTargetSize =
+        this.materialTapTargetSize ?? theme.materialTapTargetSize;
+    final enableFeedback =
+        this.enableFeedback ??
+        floatingActionButtonTheme.enableFeedback ??
+        defaults.enableFeedback!;
+    final iconSize = floatingActionButtonTheme.iconSize ?? defaults.iconSize!;
+    final extendedTextStyle = (this.extendedTextStyle ??
+            floatingActionButtonTheme.extendedTextStyle ??
+            defaults.extendedTextStyle!)
+        .copyWith(color: foregroundColor);
+    final shape =
+        this.shape ?? floatingActionButtonTheme.shape ?? defaults.shape!;
 
+    Widget? resolvedChild =
+        child != null
+            ? IconTheme.merge(
+              data: IconThemeData(size: iconSize),
+              child: child!,
+            )
+            : child;
     final BoxConstraints sizeConstraints;
     switch (_floatingActionButtonType) {
       case _M3EFloatingActionButtonType.regular:
@@ -171,6 +432,28 @@ class M3EFloatingActionButton extends StatelessWidget {
         sizeConstraints =
             floatingActionButtonTheme.extendedSizeConstraints ??
             defaults.extendedSizeConstraints!;
+        final double iconLabelSpacing =
+            extendedIconLabelSpacing ??
+            floatingActionButtonTheme.extendedIconLabelSpacing ??
+            8.0;
+        final EdgeInsetsGeometry padding =
+            extendedPadding ??
+            floatingActionButtonTheme.extendedPadding ??
+            defaults.extendedPadding!;
+        resolvedChild = _ChildOverflowBox(
+          child: Padding(
+            padding: padding,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                if (child != null) child!,
+                if (child != null && isExtended)
+                  SizedBox(width: iconLabelSpacing),
+                if (isExtended) _extendedLabel!,
+              ],
+            ),
+          ),
+        );
     }
 
     Widget result = RawMaterialButton(
@@ -203,6 +486,168 @@ class M3EFloatingActionButton extends StatelessWidget {
     if (heroTag case final heroTag?) result = Hero(tag: heroTag, child: result);
 
     return MergeSemantics(child: result);
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(
+      ObjectFlagProperty<VoidCallback>(
+        'onPressed',
+        onPressed,
+        ifNull: 'disabled',
+      ),
+    );
+    properties.add(StringProperty('tooltip', tooltip, defaultValue: null));
+    properties.add(
+      ColorProperty('foregroundColor', foregroundColor, defaultValue: null),
+    );
+    properties.add(
+      ColorProperty('backgroundColor', backgroundColor, defaultValue: null),
+    );
+    properties.add(ColorProperty('focusColor', focusColor, defaultValue: null));
+    properties.add(ColorProperty('hoverColor', hoverColor, defaultValue: null));
+    properties.add(
+      ColorProperty('splashColor', splashColor, defaultValue: null),
+    );
+    properties.add(
+      ObjectFlagProperty<Object>('heroTag', heroTag, ifPresent: 'hero'),
+    );
+    properties.add(DoubleProperty('elevation', elevation, defaultValue: null));
+    properties.add(
+      DoubleProperty('focusElevation', focusElevation, defaultValue: null),
+    );
+    properties.add(
+      DoubleProperty('hoverElevation', hoverElevation, defaultValue: null),
+    );
+    properties.add(
+      DoubleProperty(
+        'highlightElevation',
+        highlightElevation,
+        defaultValue: null,
+      ),
+    );
+    properties.add(
+      DoubleProperty(
+        'disabledElevation',
+        disabledElevation,
+        defaultValue: null,
+      ),
+    );
+    properties.add(
+      DiagnosticsProperty<ShapeBorder>('shape', shape, defaultValue: null),
+    );
+    properties.add(
+      DiagnosticsProperty<FocusNode>(
+        'focusNode',
+        focusNode,
+        defaultValue: null,
+      ),
+    );
+    properties.add(
+      FlagProperty('isExtended', value: isExtended, ifTrue: 'extended'),
+    );
+    properties.add(
+      DiagnosticsProperty<MaterialTapTargetSize>(
+        'materialTapTargetSize',
+        materialTapTargetSize,
+        defaultValue: null,
+      ),
+    );
+  }
+}
+
+// This MaterialStateProperty is passed along to RawMaterialButton which
+// resolves the property against MaterialState.pressed, MaterialState.hovered,
+// MaterialState.focused, MaterialState.disabled.
+class _EffectiveMouseCursor extends WidgetStateMouseCursor {
+  const _EffectiveMouseCursor(this.widgetCursor, this.themeCursor);
+
+  final MouseCursor? widgetCursor;
+  final WidgetStateProperty<MouseCursor?>? themeCursor;
+
+  @override
+  MouseCursor resolve(Set<WidgetState> states) {
+    return WidgetStateProperty.resolveAs<MouseCursor?>(widgetCursor, states) ??
+        themeCursor?.resolve(states) ??
+        WidgetStateMouseCursor.clickable.resolve(states);
+  }
+
+  @override
+  String get debugDescription =>
+      'MaterialStateMouseCursor(M3EFloatingActionButton)';
+}
+
+// This widget's size matches its child's size unless its constraints
+// force it to be larger or smaller. The child is centered.
+//
+// Used to encapsulate extended FABs whose size is fixed, using Row
+// and MainAxisSize.min, to be as wide as their label and icon.
+class _ChildOverflowBox extends SingleChildRenderObjectWidget {
+  const _ChildOverflowBox({super.child});
+
+  @override
+  _RenderChildOverflowBox createRenderObject(BuildContext context) {
+    return _RenderChildOverflowBox(textDirection: Directionality.of(context));
+  }
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    _RenderChildOverflowBox renderObject,
+  ) {
+    renderObject.textDirection = Directionality.of(context);
+  }
+}
+
+class _RenderChildOverflowBox extends RenderAligningShiftedBox {
+  _RenderChildOverflowBox({super.textDirection})
+    : super(alignment: Alignment.center);
+
+  @override
+  double computeMinIntrinsicWidth(double height) => 0.0;
+
+  @override
+  double computeMinIntrinsicHeight(double width) => 0.0;
+
+  @override
+  Size computeDryLayout(BoxConstraints constraints) {
+    if (child != null) {
+      final Size childSize = child!.getDryLayout(const BoxConstraints());
+      return Size(
+        math.max(
+          constraints.minWidth,
+          math.min(constraints.maxWidth, childSize.width),
+        ),
+        math.max(
+          constraints.minHeight,
+          math.min(constraints.maxHeight, childSize.height),
+        ),
+      );
+    } else {
+      return constraints.biggest;
+    }
+  }
+
+  @override
+  void performLayout() {
+    final BoxConstraints constraints = this.constraints;
+    if (child != null) {
+      child!.layout(const BoxConstraints(), parentUsesSize: true);
+      size = Size(
+        math.max(
+          constraints.minWidth,
+          math.min(constraints.maxWidth, child!.size.width),
+        ),
+        math.max(
+          constraints.minHeight,
+          math.min(constraints.maxHeight, child!.size.height),
+        ),
+      );
+      alignChild();
+    } else {
+      size = constraints.biggest;
+    }
   }
 }
 
