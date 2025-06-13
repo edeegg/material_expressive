@@ -120,6 +120,43 @@ class M3EFloatingActionButton extends StatelessWidget {
        extendedPadding = null,
        extendedTextStyle = null;
 
+  const M3EFloatingActionButton.extended({
+    super.key,
+    this.tooltip,
+    this.foregroundColor,
+    this.backgroundColor,
+    this.focusColor,
+    this.hoverColor,
+    this.heroTag = const _DefaultHeroTag(),
+    this.elevation,
+    this.focusElevation,
+    this.hoverElevation,
+    this.splashColor,
+    this.highlightElevation,
+    this.disabledElevation,
+    required this.onPressed,
+    this.mouseCursor = SystemMouseCursors.click,
+    this.shape,
+    this.isExtended = true,
+    this.materialTapTargetSize,
+    this.clipBehavior = Clip.none,
+    this.focusNode,
+    this.autofocus = false,
+    this.extendedIconLabelSpacing,
+    this.extendedPadding,
+    this.extendedTextStyle,
+    Widget? icon,
+    required Widget label,
+    this.enableFeedback,
+  }) : assert(elevation == null || elevation >= 0.0),
+       assert(focusElevation == null || focusElevation >= 0.0),
+       assert(hoverElevation == null || hoverElevation >= 0.0),
+       assert(highlightElevation == null || highlightElevation >= 0.0),
+       assert(disabledElevation == null || disabledElevation >= 0.0),
+       _floatingActionButtonType = _M3EFloatingActionButtonType.extended,
+       child = icon,
+       _extendedLabel = label;
+
   /// The widget below this widget in the tree.
   ///
   /// Typically an [Icon].
