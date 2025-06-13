@@ -17,3 +17,8 @@ pubspec.lock
 .project
 .settings/
 .vscode/*
+
+# FVM related
+# See https://fvm.app/
+.fvm/
+.fvmrc
