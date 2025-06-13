@@ -395,10 +395,10 @@ class M3EFloatingActionButton extends StatelessWidget {
     final iconSize = floatingActionButtonTheme.iconSize ?? defaults.iconSize!;
     final extendedTextStyle = (this.extendedTextStyle ??
             floatingActionButtonTheme.extendedTextStyle ??
-            defaults.extendedTextStyle!)
-        .copyWith(color: foregroundColor);
+            defaults.extendedTextStyle)
+        ?.copyWith(color: foregroundColor);
     final shape =
-        this.shape ?? floatingActionButtonTheme.shape ?? defaults.shape!;
+        this.shape ?? floatingActionButtonTheme.shape ?? defaults.shape;
 
     Widget? resolvedChild =
         child != null
@@ -577,22 +577,22 @@ class _FABDefaultsM3E extends FloatingActionButtonThemeData {
   late final _textTheme = Theme.of(context).textTheme;
 
   @override
-  Color? get foregroundColor => _colors.onPrimaryContainer;
+  Color get foregroundColor => _colors.onPrimaryContainer;
 
   @override
-  Color? get backgroundColor => _colors.primaryContainer;
+  Color get backgroundColor => _colors.primaryContainer;
 
   @override
-  Color? get splashColor => _colors.onPrimaryContainer.withValues(alpha: .1);
+  Color get splashColor => _colors.onPrimaryContainer.withValues(alpha: .1);
 
   @override
-  Color? get focusColor => _colors.onPrimaryContainer.withValues(alpha: .1);
+  Color get focusColor => _colors.onPrimaryContainer.withValues(alpha: .1);
 
   @override
-  Color? get hoverColor => _colors.onPrimaryContainer.withValues(alpha: .08);
+  Color get hoverColor => _colors.onPrimaryContainer.withValues(alpha: .08);
 
   @override
-  ShapeBorder? get shape => switch (type) {
+  ShapeBorder get shape => switch (type) {
     _M3EFloatingActionButtonType.regular => const RoundedRectangleBorder(
       borderRadius: BorderRadius.all(Radius.circular(16.0)),
     ),
