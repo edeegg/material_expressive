@@ -16,18 +16,26 @@ class M3EFloatingActionButtonThemeData with Diagnosticable {
     );
   }
 
-  M3EFloatingActionButtonThemeData lerp(
-    M3EFloatingActionButtonThemeData? other,
+  static M3EFloatingActionButtonThemeData? lerp(
+    M3EFloatingActionButtonThemeData? a,
+    M3EFloatingActionButtonThemeData? b,
     double t,
   ) {
-    if (other == null || identical(this, other)) return this;
-    return M3EFloatingActionButtonThemeData(
-      mediumSizeConstraints: BoxConstraints.lerp(
-        mediumSizeConstraints,
-        other.mediumSizeConstraints,
-        t,
-      ),
-    );
+    return switch ((a, b)) {
+      (null, null) => null,
+      (null, final b?) => b,
+      (final a?, null) => a,
+      (final a?, final b?) => () {
+        if (identical(a, b)) return a;
+        return M3EFloatingActionButtonThemeData(
+          mediumSizeConstraints: BoxConstraints.lerp(
+            a.mediumSizeConstraints,
+            b.mediumSizeConstraints,
+            t,
+          ),
+        );
+      }(),
+    };
   }
 
   @override

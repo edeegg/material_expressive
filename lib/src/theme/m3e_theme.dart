@@ -24,7 +24,8 @@ class M3ETheme extends ThemeExtension<M3ETheme> {
   M3ETheme lerp(M3ETheme? other, double t) {
     if (other == null || identical(this, other)) return this;
     return M3ETheme(
-      floatingActionButtonTheme: floatingActionButtonTheme?.lerp(
+      floatingActionButtonTheme: M3EFloatingActionButtonThemeData.lerp(
+        floatingActionButtonTheme,
         other.floatingActionButtonTheme,
         t,
       ),
