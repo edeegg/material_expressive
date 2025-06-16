@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: write    # necessário para criar tags e releases via API
 
 jobs:
   build:
@@ -12,40 +12,45 @@ jobs:
     permissions:
       contents: write
 
+    # Todos os comandos com "run:" vão usar "example" como diretório de trabalho
     defaults:
       run:
         working-directory: example
 
     steps:
+      # 1) Puxa o código
       - uses: actions/checkout@v4
 
+      # 2) Instala o Flutter
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.32.4'
+          flutter-version: '3.19.0'
           channel: 'stable'
 
+      # 3) Instala dependências dentro de example/
       - name: Install dependencies
         run: flutter pub get
 
+      # 4) Decodifica .env para example/.env
       - name: Decode .env
-        run: echo "${{ secrets.FLUTTER_ENV }}" > .env
+        run: |
+          echo "${{ secrets.FLUTTER_ENV }}" > .env
         env:
           FLUTTER_ENV: ${{ secrets.FLUTTER_ENV }}
-
-      - name: Build APK (debug)
-        run: flutter build apk --dart-define-from-file=.env --debug
-
-      - name: Build AppBundle (unsigned)
-        run: flutter build appbundle --debug
+          
+      - run: flutter pub get
+      - run: flutter build apk --dart-define-from-file=.env --debug
+      - run: flutter build appbundle --debug
 
       - name: Upload Artifact
         uses: ncipollo/release-action@v1
         with:
+          tag: v${{ env.NEXT_VERSION }}           # <<< aqui
           artifacts: |
             example/build/app/outputs/flutter-apk/*.apk
             example/build/app/outputs/bundle/*.aab
           allowUpdates: true
           makeLatest: true
           omitBodyDuringUpdate: true
-          
+          token: ${{ secrets.GITHUB_TOKEN }}
