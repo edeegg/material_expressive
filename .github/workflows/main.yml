@@ -1,6 +1,7 @@
-name: Build & Release Example
+name: Build & Release
 
-on: workflow_dispatch
+on:
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -8,6 +9,9 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
     defaults:
       run:
         working-directory: example
@@ -15,76 +19,33 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set Up Flutter
+      - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.32.4'
-          channel: stable
+          channel: 'stable'
 
-      - run: flutter pub get
-      - run: flutter build apk --debug
+      - name: Install dependencies
+        run: flutter pub get
 
-      - name: Extract Version
-        id: extract_version
-        run: |
-          version=$(grep '^version: ' pubspec.yaml | cut -d ' ' -f 2)
-          echo "NEXT_VERSION=$version" >> $GITHUB_ENV
-
-      - name: Get Latest Git Tag
-        id: latest_tag
-        uses: actions-ecosystem/action-get-latest-tag@v1
-        with:
-          tag_prefix: 'v'
-
-      - name: Compute Next Version
-        id: bump_version
-        run: |
-          if [ -z "${{ steps.latest_tag.outputs.latest }}" ]; then
-            next=${{ env.NEXT_VERSION }}
-          else
-            latest=${{ steps.latest_tag.outputs.latest }}
-            next=$(echo "$latest" | awk -F'[+. ]' '{ OFS="."; n=split($0,a,/\\+|\\./); a[n]++; print a[1]"."a[2]"."a[3]"+"a[4]; }')
-          fi
-          echo "NEXT_VERSION=$next" >> $GITHUB_ENV
-
-      - name: Check Release Existence
-        id: check_release
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const tag = `v${process.env.NEXT_VERSION}`;
-            try {
-              await github.rest.repos.getReleaseByTag({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                tag,
-              });
-              core.setOutput('exists', 'true');
-            } catch (err) {
-              if (err.status === 404) core.setOutput('exists', 'false');
-              else throw err;
-            }
-
-      - name: Create Release
-        if: steps.check_release.outputs.exists == 'false'
-        id: create_release
-        uses: actions/create-release@v1
+      - name: Decode .env
+        run: echo "${{ secrets.FLUTTER_ENV }}" > .env
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v${{ env.NEXT_VERSION }}
-          release_name: Debug v${{ env.NEXT_VERSION }}
-          draft: false
-          prerelease: false
+          FLUTTER_ENV: ${{ secrets.FLUTTER_ENV }}
 
-      - name: Upload APK
-        if: steps.check_release.outputs.exists == 'false'
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build APK (debug)
+        run: flutter build apk --dart-define-from-file=.env --debug
+
+      - name: Build AppBundle (unsigned)
+        run: flutter build appbundle --debug
+
+      - name: Upload Artifact
+        uses: ncipollo/release-action@v1
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: example/build/app/outputs/flutter-apk/app-debug.apk
-          asset_name: app-debug.apk
-          asset_content_type: application/vnd.android.package-archive
+          artifacts: |
+            example/build/app/outputs/flutter-apk/*.apk
+            example/build/app/outputs/bundle/*.aab
+          allowUpdates: true
+          makeLatest: true
+          omitBodyDuringUpdate: true
+          
