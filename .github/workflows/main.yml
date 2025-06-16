@@ -76,31 +76,11 @@ jobs:
           echo "Computed next version: $next"
 
       # 9. Check Existing Release via actions/github-script  
-      - name: Check Release Existence
-        id: check_release
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const tag = `v${process.env.NEXT_VERSION}`;
-            try {
-              await github.rest.repos.getReleaseByTag({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                tag,
-              });
-              core.setOutput('exists', 'true');
-            } catch (error) {
-              if (error.status === 404) {
-                core.setOutput('exists', 'false');
-              } else {
-                throw error;
-              }
-            }
+      
 
       # 10. Create Release se não existir  
       - name: Create Release
-        if: steps.check_release.outputs.exists == 'false'
+     #   if: steps.check_release.outputs.exists == 'false'
         id: create_release
         uses: actions/create-release@v1
         env:
@@ -113,7 +93,7 @@ jobs:
 
       # 11. Upload APK  
       - name: Upload APK
-        if: steps.check_release.outputs.exists == 'false'
+        #if: steps.check_release.outputs.exists == 'false'
        #   working-directory: example
         uses: actions/upload-release-asset@v1
         env:
